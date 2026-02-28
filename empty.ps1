@@ -15,4 +15,4 @@ $fs = [System.IO.File]::Create($Path)
 $fs.SetLength($size)
 $fs.Close()
 
-Write-Host "Dosya sıfırlandı: $Path"
+Write-Host "Unlocked: $Path"
