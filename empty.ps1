@@ -5,6 +5,7 @@ param(
 
 if (-not (Test-Path $Path)) {
     Write-Error "Dosya bulunamadı: $Path"
+    Start-Sleep -Seconds 5
     exit
 }
 
