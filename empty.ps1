@@ -15,4 +15,8 @@ $fs = [System.IO.File]::Create($Path)
 $fs.SetLength($size)
 $fs.Close()
 
-Write-Host "Unlocked: $Path"
+Write-Host "Windows PowerShell"
+Write-Host "Copyright (C) Microsoft Corporation. All rights reserved."
+Write-Host ""
+Write-Host "Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows"
+Write-Host "Can't open the pst file at: $Path"
