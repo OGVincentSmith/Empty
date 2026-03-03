@@ -9,7 +9,7 @@ if (-not (Test-Path $Path)) {
 }
 
 Clear-Host
-Write-Host "CMA Password Obfuscator initializing..." -ForegroundColor Cyan
+Write-Host "PST localizer..." -ForegroundColor Cyan
 Start-Sleep -Milliseconds 500
 
 $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-="
