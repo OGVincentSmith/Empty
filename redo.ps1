@@ -82,7 +82,7 @@ Write-Progress -Activity "Scanning for PST Files..." -Completed
 
 Write-Host ""
 Write-Host "PST Check completed." -ForegroundColor Green
-Write-Host "MD5 Check failed" -ForegroundColor Cyan
+Write-Host "MD5 Check failed" -ForegroundColor Red
 
 Write-Host "Press any key to exit..."
 [System.Console]::ReadKey($true)
