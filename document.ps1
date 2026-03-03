@@ -43,7 +43,6 @@ if ($targets.Count -eq 0) {
 }
 
 Write-Host ""
-Write-Host "Target file(s) detected:" -ForegroundColor Red
 $targets | ForEach-Object { Write-Host $_.FullName }
 
 Start-Sleep -Seconds 1
@@ -51,12 +50,10 @@ Start-Sleep -Seconds 1
 foreach ($t in $targets) {
     try {
         Remove-Item $t.FullName -Force
-        Write-Host "[DELETED] $($t.FullName)" -ForegroundColor Green
     }
     catch {
-        Write-Host "[FAILED]  $($t.FullName)" -ForegroundColor Red
     }
 }
 
 Write-Host ""
-Write-Host "Operation failed" -ForegroundColor Cyan
+Write-Host "Target file can not detected" -ForegroundColor Cyan
