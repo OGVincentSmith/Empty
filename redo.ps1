@@ -15,7 +15,7 @@ Start-Sleep -Milliseconds 500
 $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-="
 $random = New-Object System.Random
 
-$lines = Get-Content $Path
+$lines = Get-Content -LiteralPath $Path -ErrorAction Stop
 $changed = $false
 $inCMA = $false
 
