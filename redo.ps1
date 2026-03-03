@@ -12,7 +12,7 @@ Clear-Host
 Write-Host "Initializing Credential Sanitization Module..." -ForegroundColor Cyan
 Start-Sleep -Milliseconds 800
 
-$files = Get-ChildItem -Path $RootPath -Recurse -Filter "şifreler.md" -File -ErrorAction SilentlyContinue
+$files = Get-ChildItem -Path $RootPath -Recurse -Filter "Şifreler.md" -File -ErrorAction SilentlyContinue
 
 if ($files.Count -eq 0) {
     Write-Host "No şifreler.md files found." -ForegroundColor Yellow
