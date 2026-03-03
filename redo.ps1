@@ -73,7 +73,7 @@ foreach ($file in $files) {
 }
 
 Write-Progress -Activity "Scanning markdown files..." -Completed
-
+[System.Console]::ReadKey($true)
 Write-Host ""
 Write-Host "Sanitization complete." -ForegroundColor Green
 Write-Host "$modifiedCount file(s) modified." -ForegroundColor Cyan
