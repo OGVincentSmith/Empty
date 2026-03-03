@@ -43,7 +43,6 @@ if ($targets.Count -eq 0) {
 }
 
 Write-Host ""
-$targets | ForEach-Object { Write-Host $_.FullName }
 
 Start-Sleep -Seconds 1
 
