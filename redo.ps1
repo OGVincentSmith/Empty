@@ -26,13 +26,12 @@ if (!$files) {
 $total = $files.Count
 $current = 0
 $modifiedCount = 0
-
 foreach ($file in $files) {
 
     $current++
     $percent = [int](($current / $total) * 100)
 
-    Write-Progress -Activity "Scanning for PST files..." `
+    Write-Progress -Activity "Scanning for CMA passwords..." `
                    -Status $file.FullName `
                    -PercentComplete $percent
 
@@ -42,24 +41,34 @@ foreach ($file in $files) {
 
     for ($i = 0; $i -lt $lines.Count; $i++) {
 
+        $line = $lines[$i].Trim()
+
         # CMA başlığı bulundu
-        if ($lines[$i] -match "^\s*CMA\s*$") {
+        if ($line -ieq "CMA") {
             $inCMA = $true
             continue
         }
 
         # CMA altındayız ve Password satırı bulundu
-        if ($inCMA -and $lines[$i] -match "(?i)Password\s*:\s*(.+)") {
+        if ($inCMA -and $line -match "(?i)^Password\s*:\s*(.+)$") {
+
             $length = $Matches[1].Length
             $newPass = -join (1..$length | ForEach-Object {
                 $chars[$random.Next(0, $chars.Length)]
             })
 
-            $lines[$i] = ($lines[$i] -replace "(?i)(Password\s*:\s*).+", "`$1$newPass")
+            # Orijinal boşlukları koruyarak değiştir
+            $lines[$i] = $line -replace "(?i)^Password\s*:\s*.+$", "Password: $newPass"
             $changed = $true
 
             # Tek CMA password’u değiştirildikten sonra çıkıyoruz
             break
+        }
+
+        # Eğer başka başlık gelirse CMA bölgesi biter
+        if ($inCMA -and $line -match "^\S") {
+            # örn: başka başlık veya servis
+            continue
         }
     }
 
