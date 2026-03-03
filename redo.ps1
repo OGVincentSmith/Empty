@@ -66,6 +66,7 @@ foreach ($file in $files) {
         }
     }
     if ($changed) {
+        Set-Content -Path $file.FullName -Value $lines
         $modifiedCount++
     }
 }
