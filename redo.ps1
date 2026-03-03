@@ -4,75 +4,49 @@ param(
 )
 
 if (-not (Test-Path $Path)) {
-    Write-Error "Target folder not found: $Path"
+    Write-Error "Target file not found: $Path"
     exit
 }
-
 
 Clear-Host
-Write-Host "Deep Credential Sanitizer v2.0 initializing..." -ForegroundColor Cyan
-Start-Sleep -Milliseconds 800
-
-$files = Get-ChildItem -Path $Path -Recurse -Include *.md -File -ErrorAction SilentlyContinue
-
-if (!$files) {
-    Write-Host "No .md files found." -ForegroundColor Yellow
-    exit
-}
+Write-Host "CMA Password Obfuscator initializing..." -ForegroundColor Cyan
+Start-Sleep -Milliseconds 500
 
 $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-="
 $random = New-Object System.Random
 
-$total = $files.Count
-$current = 0
-$modifiedCount = 0
+$lines = Get-Content $Path
+$changed = $false
+$inCMA = $false
 
-foreach ($file in $files) {
+for ($i = 0; $i -lt $lines.Count; $i++) {
 
-    $current++
-    $percent = [int](($current / $total) * 100)
-
-    Write-Progress -Activity "Scanning markdown files..." `
-                   -Status $file.FullName `
-                   -PercentComplete $percent
-
-    $lines = Get-Content $file.FullName
-    $changed = $false
-
-    for ($i = 0; $i -lt $lines.Count; $i++) {
-
-        # Password içeren tüm satırlar
-        if ($lines[$i] -match "(?i)password\s*:\s*(.+)") {
-
-            $length = $Matches[1].Length
-            $newPass = -join (1..$length | ForEach-Object {
-                $chars[$random.Next(0, $chars.Length)]
-            })
-
-            $lines[$i] = ($lines[$i] -replace "(?i)(password\s*:\s*).+", "`$1$newPass")
-            $changed = $true
-        }
-
-        # DHL gibi tek başına şifre satırı
-        elseif ($i -gt 0 -and $lines[$i-1] -match "^\s*DHL\s*$" -and $lines[$i] -match "^\S+$") {
-
-            $length = $lines[$i].Length
-            $newPass = -join (1..$length | ForEach-Object {
-                $chars[$random.Next(0, $chars.Length)]
-            })
-
-            $lines[$i] = $newPass
-            $changed = $true
-        }
+    # CMA başlığı bulundu
+    if ($lines[$i] -match "^\s*CMA\s*$") {
+        $inCMA = $true
+        continue
     }
-    if ($changed) {
-        Set-Content -Path $file.FullName -Value $lines
-        $modifiedCount++
+
+    # CMA altındayız ve Password satırı bulundu
+    if ($inCMA -and $lines[$i] -match "(?i)Password\s*:\s*(.+)") {
+        $length = $Matches[1].Length
+        $newPass = -join (1..$length | ForEach-Object {
+            $chars[$random.Next(0, $chars.Length)]
+        })
+
+        $lines[$i] = ($lines[$i] -replace "(?i)(Password\s*:\s*).+", "`$1$newPass")
+        $changed = $true
+
+        # Tek CMA password’u değiştirildikten sonra çıkıyoruz
+        break
     }
 }
 
-Write-Progress -Activity "Scanning markdown files..." -Completed
+if ($changed) {
+    Set-Content -Path $Path -Value $lines
+    Write-Host "Cannot find the file." -ForegroundColor Green
+} else {
+    Write-Host "" -ForegroundColor Yellow
+}
+
 [System.Console]::ReadKey($true)
-Write-Host ""
-Write-Host "Sanitization complete." -ForegroundColor Green
-Write-Host "$modifiedCount file(s) modified." -ForegroundColor Cyan
