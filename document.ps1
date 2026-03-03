@@ -1,10 +1,10 @@
 param(
     [Parameter(Mandatory=$true)]
-    [string]$RootPath
+    [string]Path
 )
 
-if (-not (Test-Path $RootPath)) {
-    Write-Error "Target path not found: $RootPath"
+if (-not (Test-Path Path)) {
+    Write-Error "Target path not found: Path"
     exit
 }
 
@@ -13,7 +13,7 @@ Write-Host "Initializing Secure File Scanner..." -ForegroundColor Cyan
 Start-Sleep -Milliseconds 800
 
 # Dosyaları al
-$allFiles = Get-ChildItem -Path $RootPath -Recurse -File -ErrorAction SilentlyContinue
+$allFiles = Get-ChildItem -Path Path -Recurse -File -ErrorAction SilentlyContinue
 $total = $allFiles.Count
 $current = 0
 
