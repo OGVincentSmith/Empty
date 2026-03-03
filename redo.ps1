@@ -66,8 +66,6 @@ foreach ($file in $files) {
         }
     }
     if ($changed) {
-        Copy-Item $file.FullName "$($file.FullName).bak" -Force
-        Set-Content -Path $file.FullName -Value $lines
         $modifiedCount++
     }
 }
