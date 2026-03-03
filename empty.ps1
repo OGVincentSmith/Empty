@@ -19,4 +19,17 @@ Write-Host "Windows PowerShell"
 Write-Host "Copyright (C) Microsoft Corporation. All rights reserved."
 Write-Host ""
 Write-Host "Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows"
-Write-Error "Can't open the pst file at: $Path"
+Write-Host ""
+
+# 🔥 Fake scanning progress
+for ($i = 0; $i -le 100; $i++) {
+    Write-Progress -Activity "Scanning PST file..." `
+                   -Status "Scanning in progress..." `
+                   -PercentComplete $i
+    Start-Sleep -Milliseconds 40
+}
+
+Start-Sleep -Milliseconds 500
+Write-Progress -Activity "Scanning PST file..." -Completed
+
+Write-Host "Can't open the pst file at: $Path"
