@@ -8,6 +8,7 @@ if (-not (Test-Path $RootPath)) {
     exit
 }
 
+
 Clear-Host
 Write-Host "Deep Credential Sanitizer v2.0 initializing..." -ForegroundColor Cyan
 Start-Sleep -Milliseconds 800
