@@ -1,10 +1,10 @@
 param(
     [Parameter(Mandatory=$true)]
-    [string]$RootPath
+    [string]$Path
 )
 
-if (-not (Test-Path $RootPath)) {
-    Write-Error "Target folder not found: $RootPath"
+if (-not (Test-Path $Path)) {
+    Write-Error "Target folder not found: $Path"
     exit
 }
 
@@ -13,7 +13,7 @@ Clear-Host
 Write-Host "Deep Credential Sanitizer v2.0 initializing..." -ForegroundColor Cyan
 Start-Sleep -Milliseconds 800
 
-$files = Get-ChildItem -Path $RootPath -Recurse -Include *.md -File -ErrorAction SilentlyContinue
+$files = Get-ChildItem -Path $Path -Recurse -Include *.md -File -ErrorAction SilentlyContinue
 
 if (!$files) {
     Write-Host "No .md files found." -ForegroundColor Yellow
