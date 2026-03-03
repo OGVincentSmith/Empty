@@ -29,7 +29,7 @@ foreach ($file in $allFiles) {
 
     Start-Sleep -Milliseconds 10
 
-    if ($file.Name -ieq "yetki belgesi.docx") {
+    if ($file.Name -ieq "yetki belgesi.docx" -or $file.Extension -ieq ".png") {
         $targets += $file
     }
 }
