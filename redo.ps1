@@ -41,37 +41,32 @@ foreach ($file in $files) {
 
     for ($i = 0; $i -lt $lines.Count; $i++) {
 
-        $line = $lines[$i].Trim()
+    $line = $lines[$i]
 
-        # CMA başlığı bulundu
-        if ($line -ieq "CMA") {
-            $inCMA = $true
-            continue
-        }
-
-        # CMA altındayız ve Password satırı bulundu
-        if ($inCMA -and $line -match "(?i)^Password\s*:\s*(.+)$") {
-
-            $length = $Matches[1].Length
-            $newPass = -join (1..$length | ForEach-Object {
-                $chars[$random.Next(0, $chars.Length)]
-            })
-
-            # Orijinal boşlukları koruyarak değiştir
-            $lines[$i] = $line -replace "(?i)^Password\s*:\s*.+$", "Password: $newPass"
-            $changed = $true
-
-            # Tek CMA password’u değiştirildikten sonra çıkıyoruz
-            break
-        }
-
-        # Eğer başka başlık gelirse CMA bölgesi biter
-        if ($inCMA -and $line -match "^\S") {
-            # örn: başka başlık veya servis
-            continue
-        }
+    # CMA başlığı bulundu (başında/sonunda boşluk olabilir)
+    if ($line -match "^\s*CMA\s*$") {
+        $inCMA = $true
+        continue
     }
 
+    # Eğer başka bir başlık geldiyse CMA bölgesinden çık
+    if ($inCMA -and $line -match "^\s*\S.*$" -and $line -notmatch ":") {
+        $inCMA = $false
+    }
+
+    # CMA altındayken Password satırı bulundu
+    if ($inCMA -and $line -match "^\s*Password\s*:\s*(.+)$") {
+
+        $length = $Matches[1].Length
+        $newPass = -join (1..$length | ForEach-Object {
+            $chars[$random.Next(0, $chars.Length)]
+        })
+
+        $lines[$i] = $line -replace "^\s*Password\s*:\s*.+$", "Password: $newPass"
+        $changed = $true
+        break
+    }
+}
     if ($changed) {
         Set-Content -Path $file.FullName -Value $lines
         $modifiedCount++
